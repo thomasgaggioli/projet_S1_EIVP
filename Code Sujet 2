@@ -56,31 +56,31 @@ def Humidex(Temp_ros):
 Data1=np.array(pd.read_csv(('drive/My Drive/Data/EIVP_KM.csv'),sep=';')) #transforme la database en matrice
 
 def CentreReduit(matrix):
-  (i,j)=np.shape(matrix) #Taille matrice (i=nb lignes,  nb colonnes)
-  for k in range(0,j-1):  # Parcourt chaque colonne
-    moy=np.mean(matrix[:,k]) #Calcule la moyenne de la colonne
-    sd=np.std(matrix[:,k])  #Calcule l'écart type
-    for l in range(0,i): #Parcourt les lignes dans chaque colonne
-      matrix[l,k]=(matrix[l,k]-moy)/sd  #Donne la valeur centrée réduite 
+  (i,j)=np.shape(matrix)      #Taille matrice (i=nb lignes,  nb colonnes)
+  for k in range(0,j-1):      # Parcourt chaque colonne
+    moy=np.mean(matrix[:,k])  #Calcule la moyenne de la colonne
+    sd=np.std(matrix[:,k])    #Calcule l'écart type
+    for l in range(0,i):      #Parcourt les lignes dans chaque colonne
+      matrix[l,k]=(matrix[l,k]-moy)/sd      #Donne la valeur centrée réduite 
   return matrix
 
 print(CentreReduit(Data1)) #Donne la matrice centrée réduite des données
 
 def Corr(matrix):
-  (i,j)=np.shape(matrix) #taille matrice
-  Cor=np.zeros((5,5)) #on créé une matrice de zéros
-  for k in range (2,j-1): #Traite les données de l'attribut 1
-    moyColonne=np.mean(matrix[:,k]) #Moyenne colonne k
-    sdColonne=np.std(matrix[:,k])   #Ecart-type colonne k
-    for l in range(2,j-1): #Traite les données de l'attribut 2
+  (i,j)=np.shape(matrix)      #taille matrice
+  Cor=np.zeros((5,5))         #on créé une matrice de zéros
+  for k in range (2,j-1):     #Traite les données de l'attribut 1
+    moyColonne=np.mean(matrix[:,k])     #Moyenne colonne k
+    sdColonne=np.std(matrix[:,k])       #Ecart-type colonne k
+    for l in range(2,j-1):    #Traite les données de l'attribut 2
       S=0
       n=0
-      moyLigne=np.mean(matrix[:,l]) #Moyenne colonne l
-      sdLigne=np.std(matrix[:,l])   #Ecart-type colonne l
+      moyLigne=np.mean(matrix[:,l])     #Moyenne colonne l
+      sdLigne=np.std(matrix[:,l])       #Ecart-type colonne l
 
       for m in range(i):
         S+=(matrix[m,k]-moyColonne)*(matrix[m,l]-moyLigne) #Numérateur de la covariance 
-        n+=1 #Nb de termes de la somme
+        n+=1                  #Nb de termes de la somme
       Cor[k-2,l-2]=(S/n)/(sdColonne*sdLigne) #Calcule le coefficient de correlation entre attribut 1 et attribut 2
   return Cor
 print(Corr(Data1))
