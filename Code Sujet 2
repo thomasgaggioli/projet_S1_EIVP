@@ -1,0 +1,104 @@
+**INTRO**
+
+Sujet 2 : Mesurer similarités des capteurs pour chaque dimension, qu’en concluez-vous ? Proposez et implémentez un algorithme permettant de mesurer la similarité automatiquement et de la montrer sur les courbes.
+"""
+
+import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+import csv
+import numpy as np
+
+"""Lecture des données"""
+
+from google.colab import drive
+drive.mount('/content/drive')
+
+path = "/content/drive/My Drive/Data/EIVP_KM.csv"
+
+Data=pd.read_csv(('drive/My Drive/Data/EIVP_KM.csv'),sep=';')
+print(Data)
+
+
+"""Données statistiques"""
+
+
+df = pd.DataFrame(Data)
+mean_df = df.mean()
+print(mean_df)
+
+df = pd.DataFrame(Data)
+stat_df = df.describe()
+print(stat_df)
+
+
+"""Indice Humidex"""
+
+
+def Temp_ros(temp,hum):
+  Temp_ros=[]
+  for i in range(0,len(temp)):
+    a=(17,27*temp[i])/(237,7+temp[i])+np.log(hum[i]/100)
+    Temp_ros.append((237,7*a)/(17,27-a))
+  return Temp_ros
+
+def Humidex(Temp_ros):
+  Humidex=[]
+  for i in range (0,len(temp)):
+    a=5417,753*(1/273,16+Temp_ros[i])
+    Humidex.append((temp[i])+0,555*(6,11*np.exp(a)-10))
+  return Humidex
+
+
+"""Recherche des corrélations"""
+
+
+Data1=np.array(pd.read_csv(('drive/My Drive/Data/EIVP_KM.csv'),sep=';')) #transforme la database en matrice
+
+def CentreReduit(matrix):
+  (i,j)=np.shape(matrix) #Taille matrice (i=nb lignes,  nb colonnes)
+  for k in range(0,j-1):  # Parcourt chaque colonne
+    moy=np.mean(matrix[:,k]) #Calcule la moyenne de la colonne
+    sd=np.std(matrix[:,k])  #Calcule l'écart type
+    for l in range(0,i): #Parcourt les lignes dans chaque colonne
+      matrix[l,k]=(matrix[l,k]-moy)/sd  #Donne la valeur centrée réduite 
+  return matrix
+
+print(CentreReduit(Data1)) #Donne la matrice centrée réduite des données
+
+def Corr(matrix):
+  (i,j)=np.shape(matrix) #taille matrice
+  Cor=np.zeros((5,5)) #on créé une matrice de zéros
+  for k in range (2,j-1): #Traite les données de l'attribut 1
+    moyColonne=np.mean(matrix[:,k]) #Moyenne colonne k
+    sdColonne=np.std(matrix[:,k])   #Ecart-type colonne k
+    for l in range(2,j-1): #Traite les données de l'attribut 2
+      S=0
+      n=0
+      moyLigne=np.mean(matrix[:,l]) #Moyenne colonne l
+      sdLigne=np.std(matrix[:,l])   #Ecart-type colonne l
+
+      for m in range(i):
+        S+=(matrix[m,k]-moyColonne)*(matrix[m,l]-moyLigne) #Numérateur de la covariance 
+        n+=1 #Nb de termes de la somme
+      Cor[k-2,l-2]=(S/n)/(sdColonne*sdLigne) #Calcule le coefficient de correlation entre attribut 1 et attribut 2
+  return Cor
+print(Corr(Data1))
+
+
+"""Graphique"""
+
+x=Data1[0:100,7]  #valeurs temps J1
+y1=CentreReduit(Data1)[0:100,2] #valeurs bruit J1
+y2=CentreReduit(Data1)[0:100,3] #valeurs bruit
+y3=CentreReduit(Data1)[0:100,4] #valeurs humidite
+y4=CentreReduit(Data1)[0:100,5] #valeurs luminosite
+y5=CentreReduit(Data1)[0:100,6] #valeurs CO2
+plt.plot(x,y1,label="Noise")
+plt.plot(x,y2,label="Temp")
+plt.plot(x,y3,label="humidity")
+plt.plot(x,y4,label="lum")
+plt.plot(x,y5,label="CO2")
+plt.xlabel('Temps')
+plt.legend()
+plt.show()
